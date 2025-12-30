@@ -1,6 +1,7 @@
 #pragma once
 
 #include "byte_stream.hh"
+#include <cstdint>
 
 class Reassembler
 {
@@ -43,4 +44,24 @@ public:
 
 private:
   ByteStream output_;
+  uint64_t first_unpoped_index_ = 0; // 第一个未读字节的索引
+};
+
+class Slice
+{
+public:
+  explicit Slice( uint64_t first_index, std::string data )
+    : first_index_( first_index ), last_index_( first_index + data.size() ), data_( std::move( data ) )
+  {}
+
+  uint64_t first_index() const { return first_index_; }
+  uint64_t last_index() const { return last_index_; }
+  std::string data() const { return data_; }
+
+  void merge(std::string&& data, uint64_t other_first_index, uint64_t other_last_index);
+
+private:
+  uint64_t first_index_;
+  uint64_t last_index_;
+  std::string data_;
 };
